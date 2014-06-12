@@ -2,12 +2,12 @@ import datetime
 import json
 import psycopg2
 
-class postgeo(object):
+class PostGeo(object):
   def __init__(self):
     self.conn = None
     self.cur = None
 
-  def connect_pg(self, str_conn):
+  def connect(self, str_conn):
     try:
       self.conn = psycopg2.connect(str_conn)
       self.cur = self.conn.cursor()
@@ -16,7 +16,7 @@ class postgeo(object):
       return False
     return True
 
-  def close_pg(self):
+  def close(self):
     if self.cur is not None:
       self.cur.close()
 
@@ -25,9 +25,9 @@ class postgeo(object):
 
   # return type dict
   # input type: dict,file handle, filename
-  def geojson2topojson(self, geojson):
+  def geojson2topojson(self, geojson, id_key=None,quantization=1e6, simplify=False):
     from topojson import topojson
-    return topojson(geojson, None, quantization=1e6, simplify=0.0001)
+    return topojson(geojson, None, id_key = id_key, quantization=quantization, simplify=simplify)
 
   # return type dict
   # input type: dict,file handle, filename
@@ -35,16 +35,20 @@ class postgeo(object):
     from geojson import geojson
     geojson(topojson, input_name=None, out_geojson=None)
 
-  # return type string
-  def dumpjson(self, json, pretty=True):
+  def dumpjson(self, dict, output = None, pretty=True):
+    indent = None
     if pretty:
-      jsonstr = json.dumps(json, indent=2)
+      indent = 2
+    if isinstance(output,str) or isinstance(output,unicode):
+      with open(output,'w') as f:
+        json.dump(dict, f, indent=indent)
+    elif isinstance(output,file):
+      json.dump(dict, output, indent=indent)
     else:
-      jsonstr = json.dumps(json)
-    return jsonstr
+      return json.dumps(dict, indent=indent)
 
   # return type dict
-  def query(self, table, geom_field, where, fields=None, format='geojson'):
+  def query(self, table, geom_field, where=None, fields=None, format='geojson'):
     if self.cur is not None:
       cur = self.cur
     else:

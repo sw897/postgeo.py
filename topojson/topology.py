@@ -17,7 +17,7 @@ def topology (objects, stitchPoles=True,quantization=1e4,id_key='id',property_tr
     if simplify:
         objects = simplify_object(objects,simplify)
     [x0,x1,y0,y1]=bound(objects)
-    
+
     oversize = x0 < -180 - E or x1 > 180 + E or y0 < -90 - E or y1 > 90 + E
     if not system:
         if oversize:
@@ -51,7 +51,7 @@ def topology (objects, stitchPoles=True,quantization=1e4,id_key='id',property_tr
     if not quantization:
         quantization = x1 + 1
         x0 = y0 = 0
-        
+
     class findEmax(Types):
         def __init__(self,obj):
             self.emax=0
@@ -108,9 +108,10 @@ def topology (objects, stitchPoles=True,quantization=1e4,id_key='id',property_tr
                 geometry = {};
             else:
                 Types.geometry(self,geometry)
-            geometry['id'] = id_func(geometry)
-            if geometry['id'] == None:
-                del geometry['id']
+            if id_key is not None:
+              geometry['id'] = id_func(geometry)
+              if geometry['id'] == None:
+                  del geometry['id']
             properties0 = geometry['properties']
             if properties0:
                 properties1 = {}
@@ -141,3 +142,8 @@ def make_ks(quantization,x0,x1,y0,y1):
         if y1 - y0:
             y=(quantization - 1.0) / (y1 - y0)
     return [x,y]
+
+def clock(features, area):
+  cobj = Clock(area)
+  features = map(cobj.clock, features)
+  return features

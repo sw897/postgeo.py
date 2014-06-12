@@ -42,7 +42,10 @@ class Types:
             self.outObj = None
         elif not ('type' in obj):
             self.outObj = {}
-            for fName in obj:
+            if type(obj) == list:
+              pass
+            else:
+              for fName in obj:
                 self.outObj[fName]=self.FeatureCollection(obj[fName])
         elif obj['type']=='Feature':
             self.outObj = self.Feature(obj)

@@ -13,8 +13,9 @@ class Hashtable:
         self.size = 1 << int(ceil(log(size)/log(2)))
         self.table = map(lambda x:False,range(0,int(size)))
         self.h = hasher(size)
-        
+
     def peak(self,key):
+        if self.h(key) is None: return None
         matches = self.table[self.h(key)]
         if matches:
             for match in matches:
